@@ -108,6 +108,14 @@ table.sw{border-collapse:collapse;width:100%;min-width:760px;font-size:.84rem}
 label small{display:block;font-weight:400;font-size:.76rem;margin-top:1px}
 .row .full{grid-column:1/-1}
 @media(max-width:440px){.seg button{font-size:.78rem;padding:8px 2px}}
+/* giai trinh */
+textarea{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);resize:vertical}
+.mrow{display:grid;grid-template-columns:1fr;gap:8px;padding:12px;border:1px solid var(--ln);border-radius:14px;margin:8px 0;background:var(--bg)}
+@media(min-width:561px){.mrow{grid-template-columns:1fr 1fr}.mrow .full{grid-column:1/-1}}
+.mrow .btn{margin-top:0;justify-self:start}
+.ck{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;color:var(--tx);margin:8px 0}
+.ck input{margin-top:5px}
+h3.sec{font-size:1.05rem;margin:20px 0 6px}
 /* misc */
 .gloss dt{font-weight:600;margin-top:10px}.gloss dd{margin:2px 0 0;color:var(--mu);font-size:.93rem}
 details.g>summary{cursor:pointer;font-weight:600;font-size:1.05rem}
@@ -136,6 +144,7 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
   <button role="tab" aria-selected="false" data-p="p3">Vai trò</button>
   <button role="tab" aria-selected="false" data-p="p4">Tỷ lệ</button>
   <button role="tab" aria-selected="false" data-p="p5">Rủi ro</button>
+  <button role="tab" aria-selected="false" data-p="p6">Giải trình</button>
  </div>
 </div>
 
@@ -221,6 +230,43 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
   <p class="sub">Năm lỗi hay gặp ở nghị quyết liên quan đến vốn, kèm hậu quả và cách làm đúng.</p>
   <div id="risks"></div>
   <div class="note">Mức phạt hành chính tra theo Nghị định xử phạt trong lĩnh vực kế hoạch và đầu tư đang hiệu lực, vì mức phạt đã thay đổi qua các thời kỳ. Thời hiệu xử phạt tính từ khi hành vi chấm dứt.</div>
+ </div>
+</section>
+
+<!-- 6. GIAI TRINH -->
+<section class="panel" id="p6">
+ <div class="card">
+  <h2>Giải trình diễn biến vốn</h2>
+  <p class="sub">Nhập thông tin và các mốc, công cụ ghép thành báo cáo để sao chép. Dữ liệu lưu trong trình duyệt này.</p>
+  <div class="row">
+   <div><label for="g_cty">Tên công ty</label><input type="text" id="g_cty"></div>
+   <div><label for="g_mst">Mã số doanh nghiệp</label><input type="text" id="g_mst"></div>
+   <div><label for="g_gcn">Ngày cấp GCNĐKDN lần đầu</label><input type="text" id="g_gcn" placeholder="ví dụ 15/05/2020"></div>
+   <div><label for="g_cq">Kính gửi (cơ quan nhận)</label><input type="text" id="g_cq"></div>
+   <div class="full"><label for="g_nddpl">Người đại diện theo pháp luật</label><input type="text" id="g_nddpl"></div>
+  </div>
+  <h3 class="sec">Các mốc góp vốn và tăng vốn</h3>
+  <div id="g_rows"></div>
+  <button class="btn ghost" id="g_add" type="button">Thêm mốc</button>
+  <button class="btn ghost" id="g_demo" type="button">Nạp ví dụ</button>
+  <h3 class="sec">Nguyên nhân</h3>
+  <textarea id="g_nn" rows="4" placeholder="Mỗi ý một dòng"></textarea>
+  <h3 class="sec">Biện pháp đã thực hiện</h3>
+  <textarea id="g_bp" rows="5" placeholder="Mỗi biện pháp một dòng"></textarea>
+  <h3 class="sec">Hậu quả</h3>
+  <textarea id="g_hq" rows="2" placeholder="Ví dụ: không phát sinh thiệt hại cho Nhà nước, cổ đông hoặc bên thứ ba (chỉ ghi khi đã xác nhận)"></textarea>
+  <h3 class="sec">Cam kết và đề nghị</h3>
+  <label class="ck"><input type="checkbox" id="g_xp" checked> Công ty chấp hành quyết định xử phạt</label>
+  <label class="ck"><input type="checkbox" id="g_th"> Đề nghị cơ quan xem xét thời hiệu xử phạt</label>
+  <h3 class="sec">Tài liệu kèm theo</h3>
+  <div id="g_ck"></div>
+  <button class="btn" id="g_gen" type="button">Tạo bản giải trình</button>
+ </div>
+ <div class="card" id="g_outcard" style="display:none">
+  <h2>Bản giải trình</h2>
+  <p class="sub" id="g_hint"></p>
+  <textarea id="g_out" rows="22"></textarea>
+  <button class="btn" id="g_copy" type="button">Sao chép</button>
  </div>
 </section>
 
@@ -405,6 +451,81 @@ function drawTree(){
  var rs=$("reset");if(rs)rs.addEventListener("click",function(){path=[];drawTree()});
 }
 drawTree();
+
+/* ---------- 7. giai trinh ---------- */
+var GK="gt_form_v1";
+var GF=["g_cty","g_mst","g_gcn","g_cq","g_nddpl","g_nn","g_bp","g_hq"];
+var GCHKT=["Giấy chứng nhận đăng ký doanh nghiệp qua các lần thay đổi","Biên bản họp Đại hội đồng cổ đông liên quan","Sao kê ngân hàng các đợt góp vốn của từng cổ đông","Sổ đăng ký cổ đông tại từng thời điểm","Hồ sơ chuyển nhượng vốn hoặc cổ phần và chứng từ thuế liên quan (nếu có)"];
+var GR=[{d:"",e:"",v:"",t:""}],GC=GCHKT.map(function(){return true});
+function esc(x){return String(x).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function gsave(){try{var o={rows:GR,chk:GC,xp:$("g_xp").checked,th:$("g_th").checked};GF.forEach(function(k){o[k]=$(k).value});localStorage.setItem(GK,JSON.stringify(o))}catch(e){}}
+function gload(){try{var o=JSON.parse(localStorage.getItem(GK)||"null");if(!o)return;
+ GF.forEach(function(k){if(typeof o[k]==="string")$(k).value=o[k]});
+ if(Array.isArray(o.rows)&&o.rows.length)GR=o.rows;
+ if(Array.isArray(o.chk)&&o.chk.length===GCHKT.length)GC=o.chk;
+ $("g_xp").checked=o.xp!==false;$("g_th").checked=!!o.th}catch(e){}}
+function grows(){
+ $("g_rows").innerHTML=GR.map(function(r,i){return '<div class="mrow">'
+  +'<div><label>Thời điểm</label><input type="text" data-i="'+i+'" data-k="d" value="'+esc(r.d)+'" placeholder="ví dụ Tháng 6/2021"></div>'
+  +'<div><label>Sự kiện</label><input type="text" data-i="'+i+'" data-k="e" value="'+esc(r.e)+'"></div>'
+  +'<div><label>Vốn điều lệ đăng ký</label><input type="text" data-i="'+i+'" data-k="v" value="'+esc(r.v)+'" placeholder="ví dụ 350 tỷ đồng"></div>'
+  +'<div><label>Vốn thực góp</label><input type="text" data-i="'+i+'" data-k="t" value="'+esc(r.t)+'"></div>'
+  +'<button class="btn ghost full" type="button" data-del="'+i+'">Xóa mốc '+(i+1)+'</button></div>'}).join("")}
+$("g_rows").addEventListener("input",function(e){var t=e.target;if(t.dataset&&t.dataset.k){GR[+t.dataset.i][t.dataset.k]=t.value;gsave()}});
+$("g_rows").addEventListener("click",function(e){var d=e.target.dataset&&e.target.dataset.del;if(d===undefined)return;GR.splice(+d,1);if(!GR.length)GR=[{d:"",e:"",v:"",t:""}];grows();gsave()});
+$("g_add").addEventListener("click",function(){GR.push({d:"",e:"",v:"",t:""});grows();gsave()});
+$("g_ck").innerHTML=GCHKT.map(function(t,i){return '<label class="ck"><input type="checkbox" data-c="'+i+'"> '+t+'</label>'}).join("");
+$("g_ck").addEventListener("change",function(e){var c=e.target.dataset&&e.target.dataset.c;if(c===undefined)return;GC[+c]=e.target.checked;gsave()});
+GF.concat(["g_xp","g_th"]).forEach(function(k){$(k).addEventListener("input",gsave);$(k).addEventListener("change",gsave)});
+$("g_demo").addEventListener("click",function(){
+ $("g_cty").value="Công ty Cổ phần Đầu tư Fgroup";
+ GR=[
+  {d:"Năm 2020",e:"Thành lập công ty cổ phần với 5 cổ đông sáng lập",v:"50 tỷ đồng",t:"0"},
+  {d:"Hết 90 ngày kể từ ngày cấp GCNĐKDN",e:"Các cổ đông góp được 9,5 tỷ đồng, chưa góp đủ",v:"50 tỷ đồng",t:"9,5 tỷ đồng"},
+  {d:"Hết 120 ngày",e:"Công ty chưa đăng ký điều chỉnh vốn điều lệ dù góp thiếu",v:"50 tỷ đồng",t:"9,5 tỷ đồng"},
+  {d:"Cuối năm 2020",e:"Vốn thực góp đạt 30 tỷ đồng",v:"50 tỷ đồng",t:"30 tỷ đồng"},
+  {d:"Tháng 6/2021",e:"Góp đủ vốn điều lệ",v:"50 tỷ đồng",t:"50 tỷ đồng"},
+  {d:"Tháng 6/2021",e:"Tăng vốn lần 1; hồ sơ ghi một cổ đông góp đủ nhưng thực tế mới góp 1 tỷ đồng",v:"350 tỷ đồng",t:""},
+  {d:"Sau cuộc họp tháng 6/2021",e:"Cổ đông đó chuyển nhượng 1 tỷ đồng cho cổ đông khác; vốn sau đó được góp đủ",v:"350 tỷ đồng",t:"350 tỷ đồng"},
+  {d:"Tháng 1/2023",e:"Tăng vốn lần 2, hồ sơ thể hiện góp đủ",v:"580 tỷ đồng",t:"580 tỷ đồng"}];
+ $("g_nn").value="Năm 2020: cổ đông chưa thu xếp đủ vốn trong 90 ngày; công ty chưa thực hiện thủ tục điều chỉnh vốn điều lệ trong 30 ngày tiếp theo.\nTháng 6/2021: hồ sơ tăng vốn ghi nhận một cổ đông góp đủ trong khi thực tế mới góp 1 tỷ đồng.";
+ $("g_bp").value="Góp đủ 50 tỷ đồng vốn điều lệ vào tháng 6/2021.\nCổ đông chuyển nhượng 1 tỷ đồng cho cổ đông khác; vốn sau đó được góp đủ theo mức tăng lên 350 tỷ đồng.\nHồ sơ tăng vốn lần 2 (580 tỷ đồng, tháng 1/2023) thể hiện góp đủ.\nPhòng pháp chế đang rà soát, hệ thống hóa toàn bộ hồ sơ vốn giai đoạn 2020 đến 2023.";
+ grows();gsave()});
+function ggen(){
+ var P="[điền]",v=function(id){return($(id).value||"").trim()||P},ln=function(id){return($(id).value||"").split("\n").map(function(x){return x.trim()}).filter(Boolean)};
+ var cty=v("g_cty"),rows=GR.filter(function(r){return r.d||r.e||r.v||r.t}),L=[];
+ var td=new Date();
+ L.push("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM","Độc lập – Tự do – Hạnh phúc","","Tp. Hồ Chí Minh, ngày "+td.getDate()+" tháng "+(td.getMonth()+1)+" năm "+td.getFullYear(),"","BÁO CÁO GIẢI TRÌNH","Về diễn biến góp vốn điều lệ và tăng vốn của "+cty,"","Kính gửi: "+v("g_cq"),"");
+ L.push(cty+", mã số doanh nghiệp "+v("g_mst")+", được cấp Giấy chứng nhận đăng ký doanh nghiệp lần đầu ngày "+v("g_gcn")+", xin giải trình như sau:","");
+ L.push("I. CĂN CỨ","- Luật Doanh nghiệp 2014 (Điều 112) và Luật Doanh nghiệp 2020 (Điều 113) về thời hạn thanh toán cổ phần đã đăng ký mua.","- Điều lệ công ty và các biên bản họp Đại hội đồng cổ đông.","");
+ L.push("II. DIỄN BIẾN GÓP VỐN VÀ TĂNG VỐN");
+ if(!rows.length)L.push(P);
+ rows.forEach(function(r,i){L.push((i+1)+". "+(r.d||P)+": "+(r.e||P)+". Vốn điều lệ đăng ký: "+(r.v||P)+"; vốn thực góp: "+(r.t||P)+".")});
+ L.push("");
+ L.push("III. NGUYÊN NHÂN");var nn=ln("g_nn");if(!nn.length)L.push(P);nn.forEach(function(x){L.push("- "+x)});L.push("");
+ L.push("IV. BIỆN PHÁP ĐÃ THỰC HIỆN");var bp=ln("g_bp");if(!bp.length)L.push(P);bp.forEach(function(x,i){L.push((i+1)+". "+x)});L.push("");
+ L.push("V. HẬU QUẢ",v("g_hq"),"");
+ var last=rows.length?rows[rows.length-1]:null;
+ L.push("VI. HIỆN TRẠNG","Theo hồ sơ hiện tại, vốn điều lệ của công ty là "+(last&&last.v||P)+", vốn thực góp là "+(last&&last.t||P)+".","");
+ L.push("VII. CAM KẾT VÀ ĐỀ NGHỊ","- Công ty cam kết các thông tin trong báo cáo là trung thực và sẵn sàng cung cấp tài liệu khi được yêu cầu.");
+ if($("g_xp").checked)L.push("- Công ty chấp hành quyết định xử phạt của cơ quan có thẩm quyền.");
+ if($("g_th").checked)L.push("- Công ty đề nghị cơ quan xem xét thời hiệu xử phạt theo Luật Xử lý vi phạm hành chính, vì các hành vi đã chấm dứt từ năm "+P+".");
+ L.push("");
+ var tl=GCHKT.filter(function(t,i){return GC[i]});
+ L.push("TÀI LIỆU KÈM THEO");if(!tl.length)L.push("Không có");tl.forEach(function(t,i){L.push((i+1)+". "+t)});
+ L.push("","NGƯỜI ĐẠI DIỆN THEO PHÁP LUẬT","(Ký, ghi rõ họ tên, đóng dấu)","","",v("g_nddpl"));
+ var txt=L.join("\n"),n=(txt.match(/\[điền\]/g)||[]).length;
+ $("g_out").value=txt;$("g_outcard").style.display="";
+ $("g_hint").textContent=n?"Còn "+n+" chỗ [điền] cần bổ sung trước khi gửi. Bạn có thể sửa trực tiếp trong khung dưới.":"Đã đủ thông tin. Đọc lại kỹ trước khi gửi.";
+ $("g_outcard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("g_gen").addEventListener("click",ggen);
+$("g_copy").addEventListener("click",function(){var b=this,t=$("g_out");
+ function done(){b.textContent="Đã sao chép";setTimeout(function(){b.textContent="Sao chép"},1600)}
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t.value).then(done,function(){t.select();document.execCommand("copy");done()})}
+ else{t.select();document.execCommand("copy");done()}});
+gload();grows();
+document.querySelectorAll("#g_ck input").forEach(function(c){c.checked=!!GC[+c.dataset.c]});
 
 /* ---------- 5. calculator ---------- */
 var NG={gt50:[.5,true,"> 50%"],ge65:[.65,false,"≥ 65%"],ge75:[.75,false,"≥ 75%"]};
