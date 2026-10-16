@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bộ công cụ Tờ trình thông qua</title>
+<style>
+:root{
+ --bg:#f5f5f7;--card:#fff;--tx:#1d1d1f;--mu:#6e6e73;--ln:#d2d2d7;--ac:#0071e3;--ac-s:#e8f2fd;
+ --l:#0071e3;--ls:#e8f2fd;--d:#b25e00;--ds:#fff3e0;--k:#2d8a4e;--ks:#e6f5ea;
+ --sh:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+ --bg:#000;--card:#1c1c1e;--tx:#f5f5f7;--mu:#98989d;--ln:#38383a;--ac:#2997ff;--ac-s:#0b2540;
+ --l:#2997ff;--ls:#0b2540;--d:#ffb340;--ds:#33260c;--k:#30d158;--ks:#0e2e18;--sh:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);
+ font:17px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+ -webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
+.hero{padding:44px 0 18px}
+.eyebrow{color:var(--ac);font-weight:600;font-size:.9rem;letter-spacing:.02em}
+h1{font-size:clamp(2rem,6vw,3rem);line-height:1.08;letter-spacing:-.02em;margin:.2em 0 .3em;font-weight:700}
+.lead{color:var(--mu);font-size:1.1rem;max-width:620px;margin:0}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600}
+.tag.l{background:var(--ls);color:var(--l)}.tag.d{background:var(--ds);color:var(--d)}.tag.k{background:var(--ks);color:var(--k)}
+.seg-wrap{position:sticky;top:0;z-index:10;padding:10px 0;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.seg{display:flex;background:color-mix(in srgb,var(--mu) 16%,transparent);border-radius:10px;padding:2px;gap:2px}
+.seg button{flex:1;border:0;background:transparent;color:var(--tx);font:inherit;font-size:.88rem;font-weight:500;padding:8px 4px;border-radius:8px;cursor:pointer;transition:.2s}
+.seg button[aria-selected=true]{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.15);font-weight:600}
+.panel{display:none;animation:in .35s ease}
+.panel.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:22px;margin:16px 0}
+h2{font-size:1.5rem;letter-spacing:-.01em;margin:0 0 4px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:.98rem}
+label{display:block;font-size:.85rem;color:var(--mu);margin:0 0 6px;font-weight:500}
+select,input[type=date]{width:100%;appearance:none;-webkit-appearance:none;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.btn{margin-top:14px;border:0;background:var(--ac);color:#fff;font:inherit;font-weight:600;padding:12px 22px;border-radius:99px;cursor:pointer}
+.btn.ghost{background:var(--ac-s);color:var(--ac)}
+.btn:active{transform:scale(.98)}
+.note{background:var(--ds);color:var(--d);border-radius:12px;padding:11px 14px;margin-top:14px;font-size:.88rem}
+/* timeline */
+.tl{list-style:none;margin:18px 0 0;padding:0 0 0 22px;border-left:2px solid var(--ln)}
+.tl>li{position:relative;margin:0 0 14px;padding:14px 16px;border-radius:14px;background:var(--bg)}
+.tl>li:before{content:"";position:absolute;left:-30px;top:20px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--ln)}
+.tl>li.key:before{border-color:var(--ac);background:var(--ac)}
+.tl .dt{font-weight:700;font-size:1.02rem}
+.tl .ti{margin:2px 0 4px}
+.tl .nt{color:var(--mu);font-size:.9rem}
+.tl details{margin-top:8px;font-size:.88rem;color:var(--mu)}
+.tl summary{cursor:pointer;color:var(--ac);font-weight:500;list-style:none}
+.tl summary::-webkit-details-marker{display:none}
+.tl .gap{font-size:.78rem;color:var(--mu);margin:-6px 0 8px;padding-left:4px}
+/* lifecycle */
+.flow{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;scroll-snap-type:x mandatory}
+.node{flex:0 0 128px;scroll-snap-align:start;border:1.5px solid var(--ln);background:var(--card);border-radius:16px;padding:12px 10px;text-align:left;cursor:pointer;font:inherit;color:var(--tx);position:relative;transition:.2s}
+.node b{display:block;font-size:.72rem;color:var(--mu);font-weight:600}
+.node span{font-size:.9rem;font-weight:600;line-height:1.25;display:block;margin-top:2px}
+.node[aria-pressed=true]{border-color:var(--ac);background:var(--ac-s)}
+.node[aria-pressed=true] b{color:var(--ac)}
+.detail{background:var(--bg);border-radius:16px;padding:18px;margin-top:6px}
+.detail h3{margin:0 0 2px;font-size:1.2rem}
+.detail h4{margin:14px 0 4px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mu)}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:3px 0}
+.base{display:inline-block;margin-top:12px;font-size:.82rem;color:var(--mu)}
+/* swimlane */
+.tbl{overflow-x:auto;border-radius:14px;border:1px solid var(--ln)}
+table.sw{border-collapse:collapse;width:100%;min-width:760px;font-size:.84rem}
+.sw th,.sw td{padding:10px;border-bottom:1px solid var(--ln);border-right:1px solid var(--ln);vertical-align:top;text-align:left}
+.sw th{background:var(--bg);font-weight:600;position:sticky;top:0}
+.sw tr:last-child td{border-bottom:0}.sw td:last-child,.sw th:last-child{border-right:0}
+.sw td:first-child{font-weight:600;background:var(--bg);min-width:118px}
+.sw td.on{background:var(--ac-s)}
+.sw td.em{color:var(--ln)}
+.sw td.hl{box-shadow:inset 0 0 0 2px var(--ac)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--ln);background:var(--card);color:var(--tx);font:inherit;font-size:.82rem;padding:5px 12px;border-radius:99px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:#fff}
+/* tree */
+.crumbs{display:flex;gap:6px;flex-wrap:wrap;font-size:.8rem;color:var(--mu);margin-bottom:10px}
+.crumbs span:not(:last-child):after{content:" ›";margin-left:6px}
+.q{font-size:1.25rem;font-weight:600;margin:4px 0 14px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--ln);background:var(--card);color:var(--tx);font:inherit;padding:14px 16px;border-radius:14px;margin:8px 0;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--ac)}
+.opt small{display:block;color:var(--mu);font-size:.82rem;margin-top:2px}
+.res{background:var(--ac-s);border-radius:16px;padding:18px}
+.res .big{font-size:2.4rem;font-weight:700;letter-spacing:-.02em;color:var(--ac);line-height:1.1}
+.res h3{margin:0 0 6px}
+.res ul{padding-left:20px;margin:10px 0 0}
+/* misc */
+.gloss dt{font-weight:600;margin-top:10px}.gloss dd{margin:2px 0 0;color:var(--mu);font-size:.93rem}
+details.g>summary{cursor:pointer;font-weight:600;font-size:1.05rem}
+footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
+@media print{.seg-wrap,.btn,.chips{display:none}.panel{display:block!important;break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+ <div class="eyebrow">Pháp chế · Họp và nghị quyết</div>
+ <h1>Tờ trình thông qua.</h1>
+ <p class="lead">Từ ngày họp trên biên bản, dựng ngược toàn bộ mốc thời gian, vai trò và tỷ lệ biểu quyết.</p>
+ <div class="legend" aria-label="Chú giải ba lớp quy định">
+  <span class="tag l">● Quy định của luật</span>
+  <span class="tag d">● Điều lệ có thể quy định khác</span>
+  <span class="tag k">● Khuyến nghị thực tiễn</span>
+ </div>
+</header>
+
+<div class="seg-wrap">
+ <div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" data-p="p1">Mốc ngày</button>
+  <button role="tab" aria-selected="false" data-p="p2">Vòng đời</button>
+  <button role="tab" aria-selected="false" data-p="p3">Vai trò</button>
+  <button role="tab" aria-selected="false" data-p="p4">Tỷ lệ</button>
+ </div>
+</div>
+
+<!-- 1. TIMELINE -->
+<section class="panel on" id="p1">
+ <div class="card">
+  <h2>Mốc ngày</h2>
+  <p class="sub">Nhập ngày họp ghi trên biên bản, ra toàn bộ mốc phải có trước và sau.</p>
+  <div class="row">
+   <div><label for="loai">Loại cuộc họp</label>
+    <select id="loai"><option value="dhcd">Đại hội đồng cổ đông</option><option value="hdqt">Hội đồng quản trị</option><option value="hdtv">Hội đồng thành viên (TNHH)</option></select></div>
+   <div><label for="ngay">Ngày họp (D)</label><input type="date" id="ngay"></div>
+  </div>
+  <button class="btn" id="calc" type="button">Dựng mốc thời gian</button>
+  <div id="tlout"></div>
+  <div class="note">Ngày làm việc chỉ bỏ thứ Bảy và Chủ nhật, chưa trừ ngày lễ. Điều, khoản trích theo hiểu biết, cần đối chiếu văn bản đang hiệu lực và Điều lệ từng pháp nhân trước khi dùng.</div>
+ </div>
+</section>
+
+<!-- 2. LIFECYCLE -->
+<section class="panel" id="p2">
+ <div class="card">
+  <h2>Vòng đời tờ trình</h2>
+  <p class="sub">Bảy bước từ dự thảo đến lưu trữ. Chạm từng bước để xem người làm, việc cần làm và điểm kiểm tra.</p>
+  <div class="flow" id="flow"></div>
+  <div class="detail" id="fdetail"></div>
+ </div>
+</section>
+
+<!-- 3. SWIMLANE -->
+<section class="panel" id="p3">
+ <div class="card">
+  <h2>Ai làm gì, ở bước nào</h2>
+  <p class="sub">Chọn một vai trò để làm nổi bật phần việc của vai trò đó.</p>
+  <div class="chips" id="chips"></div>
+  <div class="tbl"><table class="sw" id="sw"></table></div>
+ </div>
+</section>
+
+<!-- 4. TREE -->
+<section class="panel" id="p4">
+ <div class="card">
+  <h2>Tỷ lệ cần đạt</h2>
+  <p class="sub">Trả lời lần lượt, ra tỷ lệ thông qua và điểm cần kiểm tra.</p>
+  <div id="tree"></div>
+ </div>
+</section>
+
+<div class="card">
+ <details class="g">
+  <summary>Chú giải thuật ngữ</summary>
+  <dl class="gloss">
+   <dt>Thông báo mời họp</dt><dd>Văn bản của người triệu tập gửi tới người có quyền dự họp, nêu thời gian, địa điểm, chương trình.</dd>
+   <dt>Tài liệu họp</dt><dd>Bộ tài liệu gửi kèm thông báo: tờ trình, dự thảo nghị quyết, báo cáo, mẫu ủy quyền.</dd>
+   <dt>Tờ trình thông qua</dt><dd>Văn bản đề nghị cơ quan có thẩm quyền biểu quyết thông qua một nội dung. Sau biểu quyết đạt tỷ lệ, nội dung chuyển thành nghị quyết.</dd>
+   <dt>Nghị quyết</dt><dd>Văn bản thể hiện quyết định đã được thông qua, là văn bản có hiệu lực.</dd>
+   <dt>Biên bản họp (BBH)</dt><dd>Văn bản ghi diễn biến, kết quả biểu quyết của cuộc họp, có chữ ký chủ tọa và thư ký.</dd>
+   <dt>Ngày chốt danh sách</dt><dd>Ngày xác định danh sách cổ đông có quyền dự họp.</dd>
+   <dt>Bên liên quan</dt><dd>Cá nhân, tổ chức có quan hệ theo định nghĩa của Luật Doanh nghiệp; người có lợi ích liên quan không được biểu quyết ở nội dung đó.</dd>
+  </dl>
+ </details>
+</div>
+
+<footer>
+ Cơ sở tham chiếu: Luật Doanh nghiệp 2020 và văn bản hướng dẫn, Nghị định 155/2020/NĐ-CP (công ty đại chúng), Điều lệ công ty. Rà soát lần cuối: 16/10/2026. Công cụ hỗ trợ tra cứu, không thay thế ý kiến pháp lý đối với từng hồ sơ cụ thể.
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var LY={L:["Luật","l"],D:["Điều lệ có thể khác","d"],K:["Khuyến nghị","k"]};
+function tag(k){return '<span class="tag '+LY[k][1]+'">'+LY[k][0]+'</span>'}
+
+/* tabs */
+var tabs=document.querySelectorAll(".seg button");
+tabs.forEach(function(b){b.addEventListener("click",function(){
+ tabs.forEach(function(x){x.setAttribute("aria-selected",x===b)});
+ document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("on",p.id===b.dataset.p)});
+ window.scrollTo({top:document.querySelector(".seg-wrap").offsetTop,behavior:"smooth"});
+})});
+
+/* ---------- 1. timeline ---------- */
+function fmt(d){var w=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()];
+ return w+", "+String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()}
+function addD(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
+function subW(d,n){var x=new Date(d);while(n>0){x.setDate(x.getDate()-1);var w=x.getDay();if(w!==0&&w!==6)n--}return x}
+function it(o){return '<li class="'+(o.key?'key':'')+'"><div class="dt">'+o.when+'</div><div class="ti">'+o.title+'</div>'
+ +(o.note?'<div class="nt">'+o.note+'</div>':'')+'<div style="margin-top:6px">'+tag(o.layer)+'</div>'
+ +(o.base?'<details><summary>Căn cứ</summary><div style="margin-top:6px">'+o.base+'</div></details>':'')+'</li>'}
+$("calc").addEventListener("click",function(){
+ var v=$("ngay").value,out=$("tlout");
+ if(!v){out.innerHTML='<div class="note">Hãy chọn ngày họp.</div>';return}
+ var p=v.split("-"),D=new Date(+p[0],+p[1]-1,+p[2]),t=$("loai").value,a=[];
+ if(t==="dhcd"){
+  var s=addD(D,-21),lo=addD(s,-10);
+  a.push({when:fmt(lo)+" → "+fmt(s),title:"Chốt danh sách cổ đông có quyền dự họp",note:"Không quá 10 ngày trước ngày gửi thông báo.",layer:"L",base:"Luật Doanh nghiệp 2020, Điều 141 khoản 1."});
+  a.push({when:"Trước "+fmt(s),title:"HĐQT quyết định triệu tập, duyệt chương trình và tờ trình",note:"Thường làm cùng hoặc trước ngày tờ trình.",layer:"K",base:"HĐQT là chủ thể triệu tập (Điều 140, 143)."});
+  a.push({when:"Không muộn hơn "+fmt(s),title:"Ngày ghi trên tờ trình",note:"Nên sớm hơn vài ngày để kịp ký, in ấn.",layer:"K",key:1});
+  a.push({when:"Chậm nhất "+fmt(s),title:"Gửi thông báo mời họp kèm tờ trình và tài liệu",note:"D − 21 ngày, tính từ ngày gửi hợp lệ. Đăng website nếu có.",layer:"L",key:1,base:"Điều 143 khoản 4. Điều lệ không được quy định ngắn hơn."});
+  a.push({when:"Chậm nhất "+fmt(subW(D,3)),title:"Hạn cổ đông kiến nghị bổ sung nội dung",note:"Bằng văn bản, 3 ngày làm việc trước ngày khai mạc.",layer:"L",base:"Điều 142. Điều kiện về tỷ lệ sở hữu và thời gian nắm giữ xem luật và Điều lệ."});
+  a.push({when:fmt(D),title:"Ngày họp (D)",note:"Ghi trên BBH và nghị quyết.",layer:"L",key:1});
+  a.push({when:"Nếu lần 1 không đủ điều kiện: chậm nhất "+fmt(addD(D,30)),title:"Triệu tập họp lần 2",note:"Trong 30 ngày kể từ ngày dự định họp lần 1. Lần 3: trong 20 ngày kể từ ngày dự định họp lần 2.",layer:"L",base:"Điều 145."});
+  a.push({when:"Đến "+fmt(addD(D,10)),title:"Đăng ký thay đổi đăng ký doanh nghiệp (nếu có)",note:"Thường 10 ngày kể từ ngày quyết định thay đổi.",layer:"L",base:"Điều 31."});
+  a.push({when:"Đến "+fmt(addD(D,15)),title:"Gửi biên bản họp cho cổ đông",note:"Trong 15 ngày kể từ ngày bế mạc, hoặc đăng website nếu Điều lệ cho phép.",layer:"L",base:"Điều 150."});
+  a.push({when:"Tối đa ước tính "+fmt(addD(D,105)),title:"Hết hạn yêu cầu hủy nghị quyết",note:"90 ngày kể từ ngày nhận biên bản. Ước tính theo ngày gửi biên bản D + 15.",layer:"L",base:"Điều 151."});
+ }else{
+  var s2=subW(D,3),isq=t==="hdqt";
+  a.push({when:"Không muộn hơn "+fmt(s2),title:"Ngày ghi trên tờ trình",layer:"K",key:1});
+  a.push({when:"Chậm nhất "+fmt(s2),title:"Gửi thông báo mời họp, chương trình, tài liệu, dự thảo nghị quyết",note:"3 ngày làm việc trước ngày họp, trừ khi Điều lệ quy định khác.",layer:"D",key:1,base:isq?"Điều 157 khoản 3.":"Điều 59."});
+  a.push({when:fmt(D),title:"Ngày họp (D)",note:"Ghi trên BBH và nghị quyết.",layer:"L",key:1});
+  a.push({when:"Đến "+fmt(addD(D,10)),title:"Đăng ký thay đổi đăng ký doanh nghiệp (nếu có)",note:"Thường 10 ngày kể từ ngày quyết định thay đổi.",layer:"L",base:"Điều 31."});
+ }
+ out.innerHTML='<ul class="tl">'+a.map(it).join("")+'</ul>';
+});
+
+/* ---------- 2. lifecycle ---------- */
+var ST=[
+ {n:"Soạn thảo",who:"Bộ phận chuyên môn",do:["Soạn tờ trình và dự thảo nghị quyết","Chuẩn bị số liệu, hồ sơ đính kèm"],chk:["Tên nội dung thống nhất giữa tờ trình, dự thảo nghị quyết, chương trình","Kiến nghị đủ rõ để chuyển thẳng thành điều khoản nghị quyết"],base:"Thực tiễn nội bộ, theo quy chế công ty."},
+ {n:"Pháp chế thẩm định",who:"Pháp chế",do:["Rà soát thẩm quyền và người ký trình","Xác định tỷ lệ biểu quyết và người phải loại khỏi biểu quyết","Đối chiếu Điều lệ"],chk:["Nội dung có thuộc thẩm quyền cơ quan được trình","Có bên liên quan hay không","Căn cứ pháp lý còn hiệu lực"],base:"Luật Doanh nghiệp 2020, Điều lệ, quy chế nội bộ."},
+ {n:"Duyệt đưa ra họp",who:"HĐQT / người triệu tập",do:["Quyết định triệu tập","Duyệt chương trình và tài liệu","Chốt ngày lập danh sách có quyền dự họp"],chk:["Quyết định có đúng thẩm quyền triệu tập","Ngày chốt danh sách không quá 10 ngày trước ngày gửi thông báo (ĐHCĐ)"],base:"Điều 140, 141, 143."},
+ {n:"Gửi và công bố",who:"Thư ký / Pháp chế",do:["Gửi thông báo mời họp kèm tờ trình","Đăng website nếu có","Công bố thông tin nếu là công ty đại chúng"],chk:["Đủ thời hạn (21 ngày ĐHCĐ, 3 ngày làm việc HĐQT/HĐTV)","Lưu chứng cứ gửi","Không đổi nội dung sau khi gửi"],base:"Điều 143 (ĐHCĐ), Điều 157 (HĐQT), Điều 59 (HĐTV), Nghị định 155/2020."},
+ {n:"Trình bày và biểu quyết",who:"Chủ tọa, cổ đông / thành viên",do:["Kiểm tra tư cách và ủy quyền","Trình bày, thảo luận","Biểu quyết, kiểm phiếu"],chk:["Đủ điều kiện tiến hành họp","Loại người có lợi ích liên quan khỏi biểu quyết","Tính tỷ lệ đúng mẫu số"],base:"Điều 145, 148."},
+ {n:"Nghị quyết và biên bản",who:"Thư ký / Chủ tọa",do:["Lập biên bản và nghị quyết","Gửi biên bản cho cổ đông"],chk:["Nghị quyết khớp tờ trình đã gửi, trừ phần sửa đổi hợp lệ ghi trong BBH","Ghi tỷ lệ tán thành, không tán thành, không ý kiến","Gửi biên bản trong 15 ngày"],base:"Điều 150."},
+ {n:"Hậu họp và lưu trữ",who:"Pháp chế",do:["Đăng ký thay đổi nếu có","Cập nhật sổ cổ đông và hồ sơ nội bộ","Lưu trọn bộ hồ sơ họp"],chk:["Thời hạn đăng ký thay đổi (thường 10 ngày)","Theo dõi hạn 90 ngày yêu cầu hủy nghị quyết"],base:"Điều 31, 151."}
+];
+var fl=$("flow"),fd=$("fdetail");
+ST.forEach(function(s,i){
+ var b=document.createElement("button");b.className="node";b.type="button";
+ b.innerHTML="<b>BƯỚC "+(i+1)+"</b><span>"+s.n+"</span>";
+ b.addEventListener("click",function(){show(i)});fl.appendChild(b)});
+function show(i){
+ var s=ST[i];
+ fl.querySelectorAll(".node").forEach(function(n,j){n.setAttribute("aria-pressed",j===i)});
+ fd.innerHTML='<h3>'+(i+1)+'. '+s.n+'</h3><div style="color:var(--mu)">'+s.who+'</div>'
+  +'<h4>Việc cần làm</h4><ul>'+s.do.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul>'
+  +'<h4>Điểm kiểm tra</h4><ul>'+s.chk.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul>'
+  +'<span class="base">Căn cứ: '+s.base+'</span>';
+}
+show(0);
+
+/* ---------- 3. swimlane ---------- */
+var COL=["Soạn","Thẩm định","Duyệt","Gửi","Họp","Sau họp"];
+var LN=[
+ ["Bộ phận chuyên môn",["Soạn tờ trình, dự thảo nghị quyết","Giải trình, bổ sung","","","Trình bày nội dung","Triển khai nghị quyết"]],
+ ["Pháp chế",["Cung cấp mẫu và căn cứ","Rà thẩm quyền, tỷ lệ, độ khớp văn bản","Tư vấn trình HĐQT","Kiểm tra bộ hồ sơ gửi, lưu chứng cứ","Tư vấn tại chỗ, kiểm tra tư cách","Soát BBH, nghị quyết; đăng ký thay đổi"]],
+ ["HĐQT / người triệu tập",["","","Duyệt, triệu tập, chốt danh sách","Ký thông báo mời họp","Chủ tọa","Ban hành văn bản triển khai"]],
+ ["Cổ đông / thành viên",["","","","Nhận tài liệu; kiến nghị trước 3 ngày làm việc","Dự họp, ủy quyền, biểu quyết","Nhận BBH; quyền yêu cầu hủy trong 90 ngày"]],
+ ["Thư ký họp",["","","Lập danh sách có quyền dự họp","Gửi thông báo, lưu chứng cứ","Ghi biên bản, kiểm phiếu","Gửi BBH trong 15 ngày, lưu hồ sơ"]]
+];
+var sw=$("sw"),ch=$("chips"),sel=-1;
+function drawSW(){
+ var h="<thead><tr><th>Vai trò</th>"+COL.map(function(c){return"<th>"+c+"</th>"}).join("")+"</tr></thead><tbody>";
+ LN.forEach(function(r,i){
+  h+='<tr><td>'+r[0]+'</td>'+r[1].map(function(c){return'<td class="'+(c?(sel===i?"on hl":""):"em")+'">'+(c||"–")+'</td>'}).join("")+"</tr>";
+ });
+ sw.innerHTML=h+"</tbody>";
+}
+var all=document.createElement("button");all.className="chip";all.type="button";all.textContent="Tất cả";all.setAttribute("aria-pressed","true");ch.appendChild(all);
+function setSel(i){sel=i;ch.querySelectorAll(".chip").forEach(function(c,j){c.setAttribute("aria-pressed",j===i+1)});drawSW()}
+all.addEventListener("click",function(){setSel(-1)});
+LN.forEach(function(r,i){var c=document.createElement("button");c.className="chip";c.type="button";c.textContent=r[0];c.setAttribute("aria-pressed","false");c.addEventListener("click",function(){setSel(i)});ch.appendChild(c)});
+drawSW();
+
+/* ---------- 4. decision tree ---------- */
+var TR={
+ start:{q:"Loại cuộc họp nào?",o:[["Đại hội đồng cổ đông","Công ty cổ phần","dh"],["Hội đồng quản trị","","hq"],["Hội đồng thành viên","Công ty TNHH hai thành viên trở lên","tv"]]},
+ dh:{q:"Nội dung biểu quyết thuộc nhóm nào?",o:[
+  ["Nội dung thông thường","Báo cáo, phân phối lợi nhuận, thông qua tờ trình thường","dh50"],
+  ["Nhóm nội dung quan trọng","Loại cổ phần, ngành nghề, cơ cấu quản lý, dự án hoặc bán tài sản lớn, tổ chức lại, giải thể","dh65"],
+  ["Bầu, miễn nhiệm thành viên HĐQT, BKS","","dhb"],
+  ["Giao dịch với bên liên quan","Hợp đồng, giao dịch có người có lợi ích liên quan","dhr"]]},
+ dh50:{r:1,big:"> 50%",t:"Nội dung thông thường (ĐHCĐ)",ls:["Tính trên tổng số phiếu biểu quyết của cổ đông dự họp tán thành.","Điều lệ có thể quy định tỷ lệ cao hơn, cần đối chiếu."],b:"Điều 148 (đối chiếu khoản áp dụng)."},
+ dh65:{r:1,big:"≥ 65%",t:"Nhóm nội dung quan trọng (ĐHCĐ)",ls:["Tính trên tổng số phiếu biểu quyết của cổ đông dự họp.","Đối chiếu danh mục nội dung áp dụng tỷ lệ này và tỷ lệ cao hơn trong Điều lệ.","Với dự án đầu tư hoặc bán tài sản: ngưỡng giá trị theo luật hoặc theo Điều lệ."],b:"Điều 148 (đối chiếu khoản áp dụng)."},
+ dhb:{r:1,big:"Bầu dồn phiếu",t:"Bầu thành viên HĐQT, BKS",ls:["Thực hiện theo phương thức bầu dồn phiếu nếu Điều lệ quy định hoặc theo yêu cầu theo luật.","Kiểm tra tiêu chuẩn, điều kiện, số lượng thành viên độc lập và quyền đề cử.","Người trúng cử xác định theo số phiếu bầu từ cao xuống thấp."],b:"Điều 148 và quy định về bầu thành viên HĐQT; đối chiếu Điều lệ."},
+ dhr:{r:1,big:"≥ 65%",t:"Giao dịch với bên liên quan (ĐHCĐ)",ls:["Cổ đông có liên quan không có quyền biểu quyết ở nội dung này.","Tỷ lệ tính trên số phiếu biểu quyết của các cổ đông còn lại.","Xác định đúng người có liên quan và ngưỡng giá trị cần ĐHCĐ chấp thuận (thường từ 35% tổng giá trị tài sản, hoặc theo Điều lệ)."],b:"Điều 167; đối chiếu Điều lệ."},
+ hq:{q:"Nội dung có thành viên HĐQT có lợi ích liên quan không?",o:[["Không","","hqn"],["Có","","hqr"]]},
+ hqn:{r:1,big:"> 50%",t:"Nghị quyết HĐQT thông thường",ls:["Số thành viên dự họp tán thành, quá bán.","Họp được tiến hành khi có ít nhất 3/4 tổng số thành viên dự họp (điều kiện tiến hành).","Số phiếu ngang nhau: theo phía có phiếu của Chủ tịch HĐQT, nếu Điều lệ không quy định khác."],b:"Điều 157, 158."},
+ hqr:{r:1,big:"> 50%",t:"Nghị quyết HĐQT có người liên quan",ls:["Thành viên có lợi ích liên quan không được biểu quyết ở nội dung đó.","Tính lại số thành viên có quyền biểu quyết khi xác định tỷ lệ.","Ghi rõ việc công bố lợi ích trong biên bản."],b:"Điều 158, 159; đối chiếu Điều lệ."},
+ tv:{q:"Nhóm nội dung nào?",o:[["Thông thường","","tv65"],["Quan trọng","Sửa đổi Điều lệ, tổ chức lại, giải thể, bán tài sản lớn","tv75"]]},
+ tv65:{r:1,big:"≥ 65%",t:"Nội dung thông thường (HĐTV)",ls:["Tính trên tổng số vốn góp của thành viên dự họp.","Điều kiện họp: thành viên đại diện ít nhất 65% vốn điều lệ ở lần 1, hạ dần ở lần 2, lần 3.","Điều lệ có thể quy định khác trong khung luật cho phép."],b:"Điều 58 đến 60; đối chiếu Điều lệ."},
+ tv75:{r:1,big:"≥ 75%",t:"Nhóm nội dung quan trọng (HĐTV)",ls:["Tính trên tổng số vốn góp của thành viên dự họp.","Đối chiếu danh mục nội dung áp dụng tỷ lệ này và tỷ lệ cao hơn trong Điều lệ."],b:"Điều 58 đến 60; đối chiếu Điều lệ."}
+};
+var path=[];
+function drawTree(){
+ var id=path.length?path[path.length-1][1]:"start",n=TR[id],t=$("tree");
+ var cr=path.length?'<div class="crumbs">'+path.map(function(p){return"<span>"+p[0]+"</span>"}).join("")+"</div>":"";
+ var h=cr;
+ if(n.r){
+  h+='<div class="res"><div class="big">'+n.big+'</div><h3>'+n.t+'</h3><ul>'+n.ls.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul>'
+   +'<div style="margin-top:10px">'+tag("L")+' '+tag("D")+'</div><span class="base">Căn cứ: '+n.b+'</span></div>';
+ }else{
+  h+='<div class="q">'+n.q+'</div>'+n.o.map(function(o,i){return'<button class="opt" type="button" data-i="'+i+'">'+o[0]+(o[1]?'<small>'+o[1]+'</small>':'')+'</button>'}).join("");
+ }
+ if(path.length)h+='<button class="btn ghost" id="back" type="button">Quay lại</button> <button class="btn ghost" id="reset" type="button">Làm lại</button>';
+ t.innerHTML=h;
+ t.querySelectorAll(".opt").forEach(function(b){b.addEventListener("click",function(){var o=n.o[+b.dataset.i];path.push([o[0],o[2]]);drawTree()})});
+ var bk=$("back");if(bk)bk.addEventListener("click",function(){path.pop();drawTree()});
+ var rs=$("reset");if(rs)rs.addEventListener("click",function(){path=[];drawTree()});
+}
+drawTree();
+})();
+</script>
+</body>
+</html>
