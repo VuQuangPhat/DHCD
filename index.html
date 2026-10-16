@@ -37,7 +37,7 @@ h1{font-size:clamp(2rem,6vw,3rem);line-height:1.08;letter-spacing:-.02em;margin:
 h2{font-size:1.5rem;letter-spacing:-.01em;margin:0 0 4px}
 .sub{color:var(--mu);margin:0 0 16px;font-size:.98rem}
 label{display:block;font-size:.85rem;color:var(--mu);margin:0 0 6px;font-weight:500}
-select,input[type=date]{width:100%;appearance:none;-webkit-appearance:none;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
+select,input[type=date],input[type=text]{width:100%;appearance:none;-webkit-appearance:none;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:560px){.row{grid-template-columns:1fr}}
 .btn{margin-top:14px;border:0;background:var(--ac);color:#fff;font:inherit;font-weight:600;padding:12px 22px;border-radius:99px;cursor:pointer}
@@ -93,6 +93,21 @@ table.sw{border-collapse:collapse;width:100%;min-width:760px;font-size:.84rem}
 .res .big{font-size:2.4rem;font-weight:700;letter-spacing:-.02em;color:var(--ac);line-height:1.1}
 .res h3{margin:0 0 6px}
 .res ul{padding-left:20px;margin:10px 0 0}
+/* kv, risk */
+.kv{margin:12px 0 0}
+.kv>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--ac) 18%,transparent);font-size:.92rem}
+.kv>div:last-child{border-bottom:0}
+.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.ok,.res .big.ok{color:var(--k)}.bad,.res .big.bad{color:#d70015}
+@media (prefers-color-scheme:dark){.bad,.res .big.bad{color:#ff6961}}
+.risk{border:1px solid var(--ln);border-radius:14px;padding:2px 16px;margin:10px 0;background:var(--card)}
+.risk summary{cursor:pointer;font-weight:600;padding:12px 0}
+.risk h4{margin:10px 0 2px;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mu)}
+.risk p{margin:0 0 4px}
+.risk .base{margin:8px 0 12px}
+label small{display:block;font-weight:400;font-size:.76rem;margin-top:1px}
+.row .full{grid-column:1/-1}
+@media(max-width:440px){.seg button{font-size:.78rem;padding:8px 2px}}
 /* misc */
 .gloss dt{font-weight:600;margin-top:10px}.gloss dd{margin:2px 0 0;color:var(--mu);font-size:.93rem}
 details.g>summary{cursor:pointer;font-weight:600;font-size:1.05rem}
@@ -120,6 +135,7 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
   <button role="tab" aria-selected="false" data-p="p2">Vòng đời</button>
   <button role="tab" aria-selected="false" data-p="p3">Vai trò</button>
   <button role="tab" aria-selected="false" data-p="p4">Tỷ lệ</button>
+  <button role="tab" aria-selected="false" data-p="p5">Rủi ro</button>
  </div>
 </div>
 
@@ -130,12 +146,19 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
   <p class="sub">Nhập ngày họp ghi trên biên bản, ra toàn bộ mốc phải có trước và sau.</p>
   <div class="row">
    <div><label for="loai">Loại cuộc họp</label>
-    <select id="loai"><option value="dhcd">Đại hội đồng cổ đông</option><option value="hdqt">Hội đồng quản trị</option><option value="hdtv">Hội đồng thành viên (TNHH)</option></select></div>
-   <div><label for="ngay">Ngày họp (D)</label><input type="date" id="ngay"></div>
+    <select id="loai"><option value="dhcd">Đại hội đồng cổ đông</option><option value="hdqt">Hội đồng quản trị</option><option value="vb">Lấy ý kiến cổ đông bằng văn bản</option><option value="hdtv">Hội đồng thành viên (TNHH)</option></select></div>
+   <div><label for="ngay" id="nglabel">Ngày họp (D)</label><input type="date" id="ngay"></div>
   </div>
   <button class="btn" id="calc" type="button">Dựng mốc thời gian</button>
   <div id="tlout"></div>
   <div class="note">Ngày làm việc chỉ bỏ thứ Bảy và Chủ nhật, chưa trừ ngày lễ. Điều, khoản trích theo hiểu biết, cần đối chiếu văn bản đang hiệu lực và Điều lệ từng pháp nhân trước khi dùng.</div>
+ </div>
+<div class="card">
+  <h2>Hạn góp vốn khi thành lập</h2>
+  <p class="sub">Nhập ngày cấp Giấy chứng nhận đăng ký doanh nghiệp, ra hạn thanh toán cổ phần và hạn điều chỉnh vốn điều lệ.</p>
+  <div class="row"><div><label for="gcn">Ngày cấp GCNĐKDN</label><input type="date" id="gcn"></div></div>
+  <button class="btn" id="gvcalc" type="button">Tính hạn góp vốn</button>
+  <div id="gvout"></div>
  </div>
 </section>
 
@@ -166,6 +189,39 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
   <p class="sub">Trả lời lần lượt, ra tỷ lệ thông qua và điểm cần kiểm tra.</p>
   <div id="tree"></div>
  </div>
+ <div class="card">
+  <h2>Máy tính tỷ lệ</h2>
+  <p class="sub">Nhập số liệu thực tế. Phần chưa thanh toán đủ không có quyền biểu quyết nên bị loại khỏi mẫu số. Có thể nhập số có dấu chấm ngăn cách.</p>
+  <div class="row">
+   <div><label for="c_hinh">Hình thức</label>
+    <select id="c_hinh"><option value="hop">Họp (mẫu số: số của người dự họp)</option><option value="vb">Lấy ý kiến bằng văn bản (mẫu số: tổng số có quyền)</option></select></div>
+   <div><label for="c_loai">Cơ quan</label>
+    <select id="c_loai"><option value="dh">Đại hội đồng cổ đông (cổ phần)</option><option value="tv">Hội đồng thành viên (vốn góp)</option></select></div>
+   <div><label for="c_nguong">Ngưỡng thông qua</label>
+    <select id="c_nguong"><option value="gt50">&gt; 50%</option><option value="ge65">≥ 65%</option><option value="ge75">≥ 75%</option><option value="custom">Khác (nhập)</option></select></div>
+   <div id="c_customw" style="display:none"><label for="c_custom">Ngưỡng khác (≥ %)</label><input type="text" id="c_custom" inputmode="decimal"></div>
+   <div><label for="c_A">Tổng số đã đăng ký<small>cổ phần hoặc vốn góp</small></label><input type="text" id="c_A" inputmode="numeric"></div>
+   <div><label for="c_B">Trong đó chưa thanh toán đủ</label><input type="text" id="c_B" inputmode="numeric"></div>
+   <div><label for="c_D">Của người dự họp hoặc gửi phiếu về<small>theo số đăng ký</small></label><input type="text" id="c_D" inputmode="numeric"></div>
+   <div><label for="c_Db">Trong đó chưa thanh toán đủ</label><input type="text" id="c_Db" inputmode="numeric"></div>
+   <div><label for="c_R">Của người có lợi ích liên quan<small>đã thanh toán, loại khỏi nội dung này</small></label><input type="text" id="c_R" inputmode="numeric"></div>
+   <div><label for="c_Tt">Tán thành<small>theo số đăng ký</small></label><input type="text" id="c_Tt" inputmode="numeric"></div>
+   <div><label for="c_Tb">Trong đó chưa thanh toán đủ</label><input type="text" id="c_Tb" inputmode="numeric"></div>
+  </div>
+  <button class="btn" id="c_calc" type="button">Tính tỷ lệ</button>
+  <button class="btn ghost" id="c_demo" type="button">Điền ví dụ</button>
+  <div id="c_out" style="margin-top:14px"></div>
+ </div>
+</section>
+
+<!-- 5. RISKS -->
+<section class="panel" id="p5">
+ <div class="card">
+  <h2>Rủi ro thường gặp</h2>
+  <p class="sub">Năm lỗi hay gặp ở nghị quyết liên quan đến vốn, kèm hậu quả và cách làm đúng.</p>
+  <div id="risks"></div>
+  <div class="note">Mức phạt hành chính tra theo Nghị định xử phạt trong lĩnh vực kế hoạch và đầu tư đang hiệu lực, vì mức phạt đã thay đổi qua các thời kỳ. Thời hiệu xử phạt tính từ khi hành vi chấm dứt.</div>
+ </div>
 </section>
 
 <div class="card">
@@ -178,13 +234,14 @@ footer{color:var(--mu);font-size:.82rem;margin-top:28px;line-height:1.5}
    <dt>Nghị quyết</dt><dd>Văn bản thể hiện quyết định đã được thông qua, là văn bản có hiệu lực.</dd>
    <dt>Biên bản họp (BBH)</dt><dd>Văn bản ghi diễn biến, kết quả biểu quyết của cuộc họp, có chữ ký chủ tọa và thư ký.</dd>
    <dt>Ngày chốt danh sách</dt><dd>Ngày xác định danh sách cổ đông có quyền dự họp.</dd>
+   <dt>Cổ phần chưa bán</dt><dd>Cổ phần được quyền chào bán mà chưa bán, gồm cả phần cổ đông đã đăng ký mua nhưng không thanh toán đủ trong 90 ngày. Hội đồng quản trị có quyền bán.</dd>
    <dt>Bên liên quan</dt><dd>Cá nhân, tổ chức có quan hệ theo định nghĩa của Luật Doanh nghiệp; người có lợi ích liên quan không được biểu quyết ở nội dung đó.</dd>
   </dl>
  </details>
 </div>
 
 <footer>
- Cơ sở tham chiếu: Luật Doanh nghiệp 2020 và văn bản hướng dẫn, Nghị định 155/2020/NĐ-CP (công ty đại chúng), Điều lệ công ty. Rà soát lần cuối: 16/10/2026. Công cụ hỗ trợ tra cứu, không thay thế ý kiến pháp lý đối với từng hồ sơ cụ thể.
+ Cơ sở tham chiếu: Luật Doanh nghiệp 2020 và văn bản hướng dẫn, Nghị định 155/2020/NĐ-CP (công ty đại chúng), Nghị định 01/2021/NĐ-CP (đăng ký doanh nghiệp), Nghị định 122/2021/NĐ-CP (xử phạt trong lĩnh vực kế hoạch và đầu tư), Điều lệ công ty. Rà soát lần cuối: 16/10/2026. Công cụ hỗ trợ tra cứu, không thay thế ý kiến pháp lý đối với từng hồ sơ cụ thể.
 </footer>
 </div>
 
@@ -203,6 +260,8 @@ tabs.forEach(function(b){b.addEventListener("click",function(){
 })});
 
 /* ---------- 1. timeline ---------- */
+var T0=new Date();T0.setHours(0,0,0,0);
+$("loai").addEventListener("change",function(){$("nglabel").textContent=this.value==="vb"?"Ngày kết thúc kiểm phiếu (D)":"Ngày họp (D)"});
 function fmt(d){var w=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()];
  return w+", "+String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()}
 function addD(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
@@ -213,9 +272,9 @@ function it(o){return '<li class="'+(o.key?'key':'')+'"><div class="dt">'+o.when
 $("calc").addEventListener("click",function(){
  var v=$("ngay").value,out=$("tlout");
  if(!v){out.innerHTML='<div class="note">Hãy chọn ngày họp.</div>';return}
- var p=v.split("-"),D=new Date(+p[0],+p[1]-1,+p[2]),t=$("loai").value,a=[];
+ var p=v.split("-"),D=new Date(+p[0],+p[1]-1,+p[2]),t=$("loai").value,a=[],dl=null;
  if(t==="dhcd"){
-  var s=addD(D,-21),lo=addD(s,-10);
+  var s=addD(D,-21),lo=addD(s,-10);dl=s;
   a.push({when:fmt(lo)+" → "+fmt(s),title:"Chốt danh sách cổ đông có quyền dự họp",note:"Không quá 10 ngày trước ngày gửi thông báo.",layer:"L",base:"Luật Doanh nghiệp 2020, Điều 141 khoản 1."});
   a.push({when:"Trước "+fmt(s),title:"HĐQT quyết định triệu tập, duyệt chương trình và tờ trình",note:"Thường làm cùng hoặc trước ngày tờ trình.",layer:"K",base:"HĐQT là chủ thể triệu tập (Điều 140, 143)."});
   a.push({when:"Không muộn hơn "+fmt(s),title:"Ngày ghi trên tờ trình",note:"Nên sớm hơn vài ngày để kịp ký, in ấn.",layer:"K",key:1});
@@ -226,23 +285,46 @@ $("calc").addEventListener("click",function(){
   a.push({when:"Đến "+fmt(addD(D,10)),title:"Đăng ký thay đổi đăng ký doanh nghiệp (nếu có)",note:"Thường 10 ngày kể từ ngày quyết định thay đổi.",layer:"L",base:"Điều 31."});
   a.push({when:"Đến "+fmt(addD(D,15)),title:"Gửi biên bản họp cho cổ đông",note:"Trong 15 ngày kể từ ngày bế mạc, hoặc đăng website nếu Điều lệ cho phép.",layer:"L",base:"Điều 150."});
   a.push({when:"Tối đa ước tính "+fmt(addD(D,105)),title:"Hết hạn yêu cầu hủy nghị quyết",note:"90 ngày kể từ ngày nhận biên bản. Ước tính theo ngày gửi biên bản D + 15.",layer:"L",base:"Điều 151."});
+ }else if(t==="vb"){
+  a.push({when:"Trước "+fmt(D),title:"Gửi phiếu lấy ý kiến kèm dự thảo nghị quyết, tờ trình và tài liệu",note:"Thời hạn gửi phiếu trả lời ghi trong thông báo, không ngắn hơn mức Điều 149 và Điều lệ quy định.",layer:"D",key:1,base:"Điều 149 (đối chiếu thời hạn tối thiểu và Điều lệ)."});
+  a.push({when:fmt(D),title:"Ngày kết thúc kiểm phiếu (D)",note:"Lập biên bản kiểm phiếu.",layer:"L",key:1,base:"Điều 149."});
+  a.push({when:"Đến "+fmt(addD(D,10)),title:"Đăng ký thay đổi đăng ký doanh nghiệp (nếu có)",note:"Thường 10 ngày kể từ ngày quyết định thay đổi.",layer:"L",base:"Điều 31."});
+  a.push({when:"Đến "+fmt(addD(D,15)),title:"Gửi biên bản kiểm phiếu cho cổ đông",note:"Trong 15 ngày kể từ ngày kết thúc kiểm phiếu, hoặc đăng website nếu Điều lệ cho phép.",layer:"L",base:"Điều 149."});
+  a.push({when:"Tối đa ước tính "+fmt(addD(D,105)),title:"Hết hạn yêu cầu hủy nghị quyết",note:"90 ngày kể từ ngày nhận biên bản. Ước tính theo ngày gửi D + 15.",layer:"L",base:"Điều 151."});
+  a.push({when:"Lưu ý khi tính tỷ lệ",title:"Mẫu số là tổng số có quyền biểu quyết, không phải số của người gửi phiếu về",note:"Cổ phần chưa thanh toán đủ vẫn bị loại khỏi mẫu số. Dùng máy tính ở tab Tỷ lệ.",layer:"L",base:"Điều 113 khoản 3, Điều 148 (đối chiếu khoản áp dụng)."});
  }else{
-  var s2=subW(D,3),isq=t==="hdqt";
+  var s2=subW(D,3),isq=t==="hdqt";dl=s2;
   a.push({when:"Không muộn hơn "+fmt(s2),title:"Ngày ghi trên tờ trình",layer:"K",key:1});
   a.push({when:"Chậm nhất "+fmt(s2),title:"Gửi thông báo mời họp, chương trình, tài liệu, dự thảo nghị quyết",note:"3 ngày làm việc trước ngày họp, trừ khi Điều lệ quy định khác.",layer:"D",key:1,base:isq?"Điều 157 khoản 3.":"Điều 59."});
   a.push({when:fmt(D),title:"Ngày họp (D)",note:"Ghi trên BBH và nghị quyết.",layer:"L",key:1});
   a.push({when:"Đến "+fmt(addD(D,10)),title:"Đăng ký thay đổi đăng ký doanh nghiệp (nếu có)",note:"Thường 10 ngày kể từ ngày quyết định thay đổi.",layer:"L",base:"Điều 31."});
  }
- out.innerHTML='<ul class="tl">'+a.map(it).join("")+'</ul>';
+ var wn="";
+ if(dl&&dl<T0){wn='<div class="note">Hạn gửi thông báo mời họp ('+fmt(dl)+') đã qua so với hôm nay. Cần dời ngày họp, hoặc kiểm tra Điều lệ có cho phép gửi trong thời hạn ngắn hơn không.</div>'}
+ out.innerHTML=wn+'<ul class="tl">'+a.map(it).join("")+'</ul>';
+});
+
+/* hạn góp vốn khi thành lập */
+$("gvcalc").addEventListener("click",function(){
+ var v=$("gcn").value,out=$("gvout");
+ if(!v){out.innerHTML='<div class="note">Hãy chọn ngày cấp GCNĐKDN.</div>';return}
+ var p=v.split("-"),G=new Date(+p[0],+p[1]-1,+p[2]),h90=addD(G,90),h120=addD(G,120);
+ function st(d){var n=Math.round((d-T0)/864e5);return n<0?"Đã quá hạn "+(-n)+" ngày so với hôm nay.":(n===0?"Hạn là hôm nay.":"Còn "+n+" ngày kể từ hôm nay.")}
+ var a=[
+  {when:fmt(G),title:"Ngày cấp GCNĐKDN (mốc bắt đầu)",layer:"L",key:1},
+  {when:"Chậm nhất "+fmt(h90),title:"Thanh toán đủ số cổ phần đã đăng ký mua",note:st(h90)+" Điều lệ hoặc hợp đồng đăng ký mua chỉ được quy định thời hạn ngắn hơn 90 ngày.",layer:"L",key:1,base:"Điều 113 khoản 1 Luật Doanh nghiệp 2020 (Điều 112 Luật Doanh nghiệp 2014 nếu thành lập trước 01/01/2021)."},
+  {when:"Đến "+fmt(h120),title:"Đăng ký điều chỉnh vốn điều lệ và cổ đông sáng lập nếu còn cổ phần chưa thanh toán",note:st(h120)+" Không phải điều chỉnh nếu số cổ phần chưa thanh toán đã bán hết trong thời hạn này.",layer:"L",key:1,base:"Điều 113 khoản 4 (đối chiếu)."}
+ ];
+ out.innerHTML='<ul class="tl">'+a.map(it).join("")+'</ul><div class="note">Không có cơ chế gia hạn. Nghị quyết của ĐHĐCĐ hoặc HĐQT "gia hạn" thời hạn góp vốn không có giá trị và có thể bị yêu cầu hủy. Cổ phần chưa thanh toán đủ sau hạn là cổ phần chưa bán, HĐQT có quyền bán; cổ đông chỉ thanh toán một phần chỉ có quyền tương ứng phần đã thanh toán.</div>';
 });
 
 /* ---------- 2. lifecycle ---------- */
 var ST=[
  {n:"Soạn thảo",who:"Bộ phận chuyên môn",do:["Soạn tờ trình và dự thảo nghị quyết","Chuẩn bị số liệu, hồ sơ đính kèm"],chk:["Tên nội dung thống nhất giữa tờ trình, dự thảo nghị quyết, chương trình","Kiến nghị đủ rõ để chuyển thẳng thành điều khoản nghị quyết"],base:"Thực tiễn nội bộ, theo quy chế công ty."},
- {n:"Pháp chế thẩm định",who:"Pháp chế",do:["Rà soát thẩm quyền và người ký trình","Xác định tỷ lệ biểu quyết và người phải loại khỏi biểu quyết","Đối chiếu Điều lệ"],chk:["Nội dung có thuộc thẩm quyền cơ quan được trình","Có bên liên quan hay không","Căn cứ pháp lý còn hiệu lực"],base:"Luật Doanh nghiệp 2020, Điều lệ, quy chế nội bộ."},
+ {n:"Pháp chế thẩm định",who:"Pháp chế",do:["Rà soát thẩm quyền và người ký trình","Đối chiếu Sổ đăng ký cổ đông và sao kê: số cổ phần đã thanh toán đủ và chưa thanh toán","Xác định tỷ lệ biểu quyết và người phải loại khỏi biểu quyết","Đối chiếu Điều lệ"],chk:["Nội dung có thuộc thẩm quyền cơ quan được trình","Cổ phần chưa thanh toán đủ không có quyền biểu quyết, không đưa vào mẫu số","Nội dung không trái luật: không gia hạn thời hạn góp vốn quá 90 ngày, không cho chuyển quyền mua cổ phần chưa thanh toán","Có bên liên quan hay không","Căn cứ pháp lý còn hiệu lực"],base:"Luật Doanh nghiệp 2020 (Điều 113), Điều lệ, quy chế nội bộ."},
  {n:"Duyệt đưa ra họp",who:"HĐQT / người triệu tập",do:["Quyết định triệu tập","Duyệt chương trình và tài liệu","Chốt ngày lập danh sách có quyền dự họp"],chk:["Quyết định có đúng thẩm quyền triệu tập","Ngày chốt danh sách không quá 10 ngày trước ngày gửi thông báo (ĐHCĐ)"],base:"Điều 140, 141, 143."},
  {n:"Gửi và công bố",who:"Thư ký / Pháp chế",do:["Gửi thông báo mời họp kèm tờ trình","Đăng website nếu có","Công bố thông tin nếu là công ty đại chúng"],chk:["Đủ thời hạn (21 ngày ĐHCĐ, 3 ngày làm việc HĐQT/HĐTV)","Lưu chứng cứ gửi","Không đổi nội dung sau khi gửi"],base:"Điều 143 (ĐHCĐ), Điều 157 (HĐQT), Điều 59 (HĐTV), Nghị định 155/2020."},
- {n:"Trình bày và biểu quyết",who:"Chủ tọa, cổ đông / thành viên",do:["Kiểm tra tư cách và ủy quyền","Trình bày, thảo luận","Biểu quyết, kiểm phiếu"],chk:["Đủ điều kiện tiến hành họp","Loại người có lợi ích liên quan khỏi biểu quyết","Tính tỷ lệ đúng mẫu số"],base:"Điều 145, 148."},
+ {n:"Trình bày và biểu quyết",who:"Chủ tọa, cổ đông / thành viên",do:["Kiểm tra tư cách và ủy quyền","Trình bày, thảo luận","Biểu quyết, kiểm phiếu"],chk:["Đủ điều kiện tiến hành họp","Loại người có lợi ích liên quan khỏi biểu quyết","Tính tỷ lệ đúng mẫu số: loại cổ phần chưa thanh toán đủ và cổ phần của người có lợi ích liên quan; dùng máy tính ở tab Tỷ lệ"],base:"Điều 113, 145, 148."},
  {n:"Nghị quyết và biên bản",who:"Thư ký / Chủ tọa",do:["Lập biên bản và nghị quyết","Gửi biên bản cho cổ đông"],chk:["Nghị quyết khớp tờ trình đã gửi, trừ phần sửa đổi hợp lệ ghi trong BBH","Ghi tỷ lệ tán thành, không tán thành, không ý kiến","Gửi biên bản trong 15 ngày"],base:"Điều 150."},
  {n:"Hậu họp và lưu trữ",who:"Pháp chế",do:["Đăng ký thay đổi nếu có","Cập nhật sổ cổ đông và hồ sơ nội bộ","Lưu trọn bộ hồ sơ họp"],chk:["Thời hạn đăng ký thay đổi (thường 10 ngày)","Theo dõi hạn 90 ngày yêu cầu hủy nghị quyết"],base:"Điều 31, 151."}
 ];
@@ -268,7 +350,9 @@ var LN=[
  ["Pháp chế",["Cung cấp mẫu và căn cứ","Rà thẩm quyền, tỷ lệ, độ khớp văn bản","Tư vấn trình HĐQT","Kiểm tra bộ hồ sơ gửi, lưu chứng cứ","Tư vấn tại chỗ, kiểm tra tư cách","Soát BBH, nghị quyết; đăng ký thay đổi"]],
  ["HĐQT / người triệu tập",["","","Duyệt, triệu tập, chốt danh sách","Ký thông báo mời họp","Chủ tọa","Ban hành văn bản triển khai"]],
  ["Cổ đông / thành viên",["","","","Nhận tài liệu; kiến nghị trước 3 ngày làm việc","Dự họp, ủy quyền, biểu quyết","Nhận BBH; quyền yêu cầu hủy trong 90 ngày"]],
- ["Thư ký họp",["","","Lập danh sách có quyền dự họp","Gửi thông báo, lưu chứng cứ","Ghi biên bản, kiểm phiếu","Gửi BBH trong 15 ngày, lưu hồ sơ"]]
+ ["Thư ký họp",["","","Lập danh sách có quyền dự họp","Gửi thông báo, lưu chứng cứ","Ghi biên bản, kiểm phiếu","Gửi BBH trong 15 ngày, lưu hồ sơ"]],
+ ["Kế toán",["Cung cấp số liệu vốn góp, công nợ liên quan","Xác nhận vốn thực góp bằng sao kê và sổ kế toán","","","","Hạch toán, cập nhật sổ sách theo nghị quyết"]],
+ ["Người đại diện theo pháp luật",["","Chịu trách nhiệm tính trung thực của số liệu trình","","","","Ký hồ sơ đăng ký thay đổi; chịu trách nhiệm kê khai đúng"]]
 ];
 var sw=$("sw"),ch=$("chips"),sel=-1;
 function drawSW(){
@@ -321,6 +405,58 @@ function drawTree(){
  var rs=$("reset");if(rs)rs.addEventListener("click",function(){path=[];drawTree()});
 }
 drawTree();
+
+/* ---------- 5. calculator ---------- */
+var NG={gt50:[.5,true,"> 50%"],ge65:[.65,false,"≥ 65%"],ge75:[.75,false,"≥ 75%"]};
+var QUO={dh:[["Lần 1",.5,true,"> 50%"],["Lần 2",.33,false,"≥ 33%"]],tv:[["Lần 1",.65,false,"≥ 65%"],["Lần 2",.5,false,"≥ 50%"]]};
+function rd(id){var x=($(id).value||"").replace(/[.\s,]/g,"");return x===""?0:+x}
+function fm(n){return n.toLocaleString("vi-VN")}
+function pc(x){return (x*100).toLocaleString("vi-VN",{maximumFractionDigits:2})+"%"}
+function pass(r,th,st){return st?r>th:r>=th}
+$("c_nguong").addEventListener("change",function(){$("c_customw").style.display=this.value==="custom"?"":"none"});
+$("c_calc").addEventListener("click",calc);
+$("c_demo").addEventListener("click",function(){
+ $("c_hinh").value="hop";$("c_loai").value="dh";$("c_nguong").value="gt50";$("c_customw").style.display="none";
+ var d={c_A:1000,c_B:300,c_D:600,c_Db:200,c_R:0,c_Tt:320,c_Tb:130};
+ Object.keys(d).forEach(function(k){$(k).value=d[k]});calc();
+});
+function calc(){
+ var out=$("c_out"),A=rd("c_A"),B=rd("c_B"),D=rd("c_D"),Db=rd("c_Db"),R=rd("c_R"),Tt=rd("c_Tt"),Tb=rd("c_Tb");
+ var hinh=$("c_hinh").value,loai=$("c_loai").value,ng=$("c_nguong").value,th,st,lab;
+ function er(m){out.innerHTML='<div class="note">'+m+'</div>'}
+ if(ng==="custom"){var c=parseFloat(($("c_custom").value||"").replace(",","."));if(!(c>0&&c<=100)){er("Nhập ngưỡng khác trong khoảng 0 đến 100%.");return}th=c/100;st=false;lab="≥ "+c+"%"}
+ else{th=NG[ng][0];st=NG[ng][1];lab=NG[ng][2]}
+ if(!A||!D){er("Nhập tổng số đã đăng ký và số của người dự họp hoặc gửi phiếu về.");return}
+ if(B>A||D>A||Db>D||Db>B||Tb>Db||Tt>D||Tb>Tt){er("Số liệu chưa khớp: phần chưa thanh toán không được lớn hơn tổng tương ứng, số tán thành không được lớn hơn số dự họp.");return}
+ var V=A-B,Dv=D-Db,base=hinh==="hop"?Dv-R:V-R,naiveBase=hinh==="hop"?D:A;
+ if(R<0||base<=0||(hinh==="hop"&&R>Dv)){er("Mẫu số sau khi loại bằng hoặc nhỏ hơn 0. Kiểm tra số của người có lợi ích liên quan.");return}
+ var T=Tt-Tb,ratio=T/base,naive=Tt/naiveBase,ok=pass(ratio,th,st),nok=pass(naive,th,st);
+ var h='<div class="res"><div class="big '+(ok?'ok':'bad')+'">'+pc(ratio)+'</div><h3>'+(ok?"Đạt":"Không đạt")+' ngưỡng '+lab+'</h3><div class="kv">'
+  +'<div><span>Tổng số có quyền biểu quyết</span><b>'+fm(V)+'</b></div>'
+  +'<div><span>Mẫu số đúng</span><b>'+fm(base)+'</b></div>'
+  +'<div><span>Tán thành hợp lệ (đã thanh toán)</span><b>'+fm(T)+'</b></div>'
+  +'<div><span>Nếu tính theo số đăng ký (cách sai)</span><b>'+pc(naive)+'</b></div></div>';
+ if(hinh==="hop"){
+  var r=Dv/V;
+  h+='<h3 style="margin-top:14px">Điều kiện tiến hành họp</h3><div class="kv"><div><span>Số có quyền biểu quyết dự họp / tổng số có quyền</span><b>'+pc(r)+'</b></div>'
+   +QUO[loai].map(function(q){var o=pass(r,q[1],q[2]);return '<div><span>'+q[0]+' ('+q[3]+')</span><b class="'+(o?'ok':'bad')+'">'+(o?"Đủ điều kiện":"Chưa đủ")+'</b></div>'}).join("")
+   +'<div><span>Lần 3</span><b>Không yêu cầu tỷ lệ tối thiểu</b></div></div>';
+ }
+ h+='</div>';
+ if(ok!==nok)h+='<div class="note">Kết quả đúng ngược với cách tính theo số đăng ký ('+pc(naive)+', '+(nok?"đạt":"không đạt")+'). Nếu nghị quyết đã ban hành theo cách tính sai, có thể bị xem là không hợp lệ.</div>';
+ h+='<div style="margin-top:10px">'+tag("L")+' '+tag("D")+'</div><span class="base">Căn cứ: '+(loai==="tv"?"Điều 47 (vốn góp chưa góp đủ), Điều 58 đến 60":"Điều 113 khoản 3, Điều 145, 148, 149")+'; đối chiếu Điều lệ.</span>';
+ out.innerHTML=h;
+}
+
+/* ---------- 6. risks ---------- */
+var RK=[
+ {t:"Gia hạn thời hạn góp vốn quá 90 ngày bằng nghị quyết",w:"Luật chỉ cho Điều lệ hoặc hợp đồng đăng ký mua quy định thời hạn ngắn hơn 90 ngày, không có cơ chế gia hạn dài hơn.",h:"Nghị quyết trái luật, có thể bị yêu cầu hủy. Cổ đông vẫn chịu hậu quả của việc không góp đủ: người chưa góp gì đương nhiên không còn là cổ đông, người góp một phần chỉ có quyền tương ứng. Công ty phải điều chỉnh vốn điều lệ.",d:"Hội đồng quản trị bán số cổ phần chưa thanh toán cho người mua khác, hoặc giảm vốn điều lệ về số đã góp. Theo dõi mốc 90 và 120 ngày ở tab Mốc ngày.",b:"Điều 113 khoản 1, 3, 4; Điều 151."},
+ {t:"Cho cổ đông chuyển quyền mua hoặc \"góp thay\" phần chưa thanh toán",w:"Cổ đông không được chuyển quyền mua số cổ phần chưa thanh toán cho người khác. Số cổ phần đó là cổ phần chưa bán.",h:"Thỏa thuận giữa hai cá nhân không có giá trị làm thay đổi quyền sở hữu cổ phần. Người thanh toán thay có thể không được ghi nhận là cổ đông.",d:"Hội đồng quản trị quyết định bán cổ phần chưa bán cho người mua. Người mua thanh toán thẳng cho công ty, công ty ghi nhận vào Sổ đăng ký cổ đông.",b:"Điều 113 khoản 3."},
+ {t:"Ghi nhận góp đủ trong hồ sơ khi thực tế chưa góp",w:"Hồ sơ đăng ký và biên bản phải phản ánh đúng số vốn đã thanh toán.",h:"Bị phạt hành chính về kê khai không trung thực, không chính xác; phải đăng ký lại. Tỷ lệ biểu quyết và các nghị quyết liên quan bị đặt vấn đề.",d:"Đối chiếu sao kê ngân hàng và sổ kế toán trước khi người đại diện theo pháp luật ký hồ sơ.",b:"Nghị định xử phạt trong lĩnh vực kế hoạch và đầu tư; Điều 113."},
+ {t:"Không đăng ký điều chỉnh vốn sau 90 và 30 ngày",w:"Còn cổ phần chưa thanh toán sau hạn thì công ty phải đăng ký điều chỉnh vốn điều lệ trong 30 ngày tiếp theo, trừ khi đã bán hết số đó.",h:"Bị phạt hành chính; hồ sơ vốn không khớp thực tế, gây vướng khi tăng vốn, due diligence, vay vốn.",d:"Bán hết phần chưa thanh toán trong thời hạn, hoặc đăng ký giảm vốn đúng hạn. Khi phát hiện trễ, góp đủ hoặc điều chỉnh ngay và lưu hồ sơ giải trình.",b:"Điều 113 khoản 4."},
+ {t:"Tính điều kiện họp và tỷ lệ theo số cổ phần đăng ký thay vì đã thanh toán",w:"Cổ phần chưa thanh toán đủ không có quyền biểu quyết nên không được tính vào mẫu số hay số dự họp.",h:"Điều kiện họp hoặc tỷ lệ thông qua sai, nghị quyết có thể không hợp lệ và bị yêu cầu hủy trong 90 ngày kể từ ngày nhận biên bản.",d:"Dùng máy tính ở tab Tỷ lệ, đối chiếu Sổ đăng ký cổ đông tại ngày chốt danh sách trước mỗi cuộc họp.",b:"Điều 113 khoản 3, Điều 145, 148, 151."}
+];
+$("risks").innerHTML=RK.map(function(r){return '<details class="risk"><summary>'+r.t+'</summary><h4>Vì sao sai</h4><p>'+r.w+'</p><h4>Hậu quả</h4><p>'+r.h+'</p><h4>Cách làm đúng</h4><p>'+r.d+'</p><span class="base">Căn cứ: '+r.b+'</span></details>'}).join("");
 })();
 </script>
 </body>
